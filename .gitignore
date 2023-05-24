@@ -1,0 +1,12 @@
+# OSX
+**/.DS_Store
+
+# CLion
+.idea/*
+!.idea/runConfigurations/
+
+# Rust
+Cargo.lock
+target/
+
+x-imu3-self-test.exe
