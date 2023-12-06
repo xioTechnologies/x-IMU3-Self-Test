@@ -7,6 +7,6 @@
 
 # Rust
 Cargo.lock
-target/
-
-x-imu3-self-test.exe
+**/target/**
+!**/target/release
+!**/target/release/x-imu3-self-test.exe

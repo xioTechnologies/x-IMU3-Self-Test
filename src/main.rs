@@ -46,7 +46,7 @@ impl Device {
     pub fn disconnect(&self) {
         blue_ln!("Please disconnect USB");
 
-        let port_name = self.connection.get_info().to_string().replace("USB - ", "");
+        let port_name = self.connection.get_info().to_string().replace("USB ", "");
 
         while PortScanner::get_port_names().contains(&port_name) {
             std::thread::sleep(std::time::Duration::from_millis(1000));

@@ -1,10 +1,10 @@
 [package]
 name = "x-imu3-self-test"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["x-io Technologies Limited <info@x-io.co.uk>"]
 edition = "2018"
 
 [dependencies]
 colour = "0.7.0"
-serde_json = "1.0.96"
-ximu3 = "1.1.4"
+serde_json = "1.0.105"
+ximu3 = "1.2.3"
