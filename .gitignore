@@ -1,9 +1,8 @@
 # OSX
 **/.DS_Store
 
-# CLion
-.idea/*
-!.idea/runConfigurations/
+# RustRover
+**/.idea/**
 
 # Rust
 Cargo.lock
