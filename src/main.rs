@@ -16,14 +16,14 @@ impl Device {
 
         loop {
             for device in PortScanner::scan_filter(ConnectionType::Usb) {
-                if device.device_name.contains("BON") {
+                if matches!(device.device_name.as_str(), "x-IMU3 BON" | "x-IMU3 Thermometer") {
                     continue;
                 }
 
                 let connection = Connection::new(&device.connection_info);
 
                 if connection.open().is_ok() {
-                    prnt_ln!("Connected to {}", connection.get_info());
+                    println!("Connected to {}", device);
 
                     return Device { connection };
                 }
@@ -32,7 +32,7 @@ impl Device {
     }
 
     pub fn send_command(&self, command: &str) -> Result<String, ()> {
-        prnt_ln!("Sending command {}", command);
+        println!("Sending command {}", command);
 
         let response = self.connection.send_commands(vec![command], 0, 5000);
 
@@ -40,7 +40,7 @@ impl Device {
             return Err(());
         }
 
-        return Ok(response[0].clone());
+        Ok(response[0].clone())
     }
 
     pub fn disconnect(&self) {
@@ -55,7 +55,7 @@ impl Device {
 }
 
 fn main() {
-    prnt_ln!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+    println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 
     loop {
         let device = Device::new();
