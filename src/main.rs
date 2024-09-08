@@ -2,6 +2,8 @@
 extern crate colour;
 
 use serde_json::Value;
+use std::io::{self};
+use std::ops::Drop;
 use ximu3::connection::*;
 use ximu3::connection_type::*;
 use ximu3::port_scanner::*;
@@ -31,19 +33,22 @@ impl Device {
         }
     }
 
-    pub fn send_command(&self, command: &str) -> Result<String, ()> {
-        println!("Sending command {}", command);
+    pub fn send_command(&self, key: &str, value: Option<&str>) -> Result<String, ()> {
+        let command = format!("{{\"{}\":{}}}", key, value.unwrap_or("null"));
 
-        let response = self.connection.send_commands(vec![command], 0, 5000);
+        let response = self.connection.send_commands(vec![command.as_str()], 0, 15000);
 
         if response.len() == 0 {
+            red_ln!("No response to {}", command);
             return Err(());
         }
 
         Ok(response[0].clone())
     }
+}
 
-    pub fn disconnect(&self) {
+impl Drop for Device {
+    fn drop(&mut self) {
         blue_ln!("Please disconnect USB");
 
         let port_name = self.connection.get_info().to_string().replace("USB ", "");
@@ -59,36 +64,54 @@ impl Device {
 fn main() {
     println!("{} v{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
 
+    // Get hardware version
+    blue_ln!("Please enter hardware version");
+
+    let version = &mut String::new();
+
+    io::stdin().read_line(version).ok();
+
+    let version = version.trim();
+
+    // Repeat for each device
     loop {
-        let device = Device::new();
+        let _ = (|| {
+            let device = Device::new();
 
-        match device.send_command("{\"test\":null}") {
-            Ok(response) => {
-                let response: Value = serde_json::from_str(&response).unwrap();
-
-                if let Some(object) = response["test"].as_object() {
-                    for (key, value) in object {
-                        white!("{}", format!("{:<width$}", key, width = 32));
-
-                        if let Some(value) = value.as_str() {
-                            const PASSED: &str = "Passed";
-
-                            if value == PASSED {
-                                green_ln!("{}", PASSED);
-                            } else {
-                                red_ln!("{}", value);
-                            }
-                        } else {
-                            red_ln!("Invalid response to self-test command");
-                        }
-                    }
-                } else {
-                    red_ln!("Invalid response to self-test command");
-                }
+            // Write hardware version
+            if version.is_empty() == false {
+                device.send_command("factory", None)?;
+                device.send_command("hardware_version", Some(format!("\"{}\"", version).as_str()))?;
+                device.send_command("apply", None)?;
+                device.send_command("save", None)?;
             }
-            Err(_) => red_ln!("No response to self-test command"),
-        }
 
-        device.disconnect();
+            // Send self-test command
+            let response = device.send_command("test", None)?;
+
+            // Parse self-test response
+            let response: Value = serde_json::from_str(&response).unwrap();
+
+            if let Some(object) = response["test"].as_object() {
+                for (key, value) in object {
+                    white!("{:<width$}", key, width = 32);
+
+                    if let Some(value) = value.as_str() {
+                        if value == "Passed" {
+                            green_ln!("{}", value);
+                        } else {
+                            red_ln!("{}", value);
+                        }
+                    } else {
+                        red_ln!("Unable to parse self-test response");
+                        break;
+                    }
+                }
+            } else {
+                red_ln!("Unable to parse self-test response");
+            }
+
+            Ok::<(), ()>(())
+        })();
     }
 }

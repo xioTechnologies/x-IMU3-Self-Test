@@ -1,6 +1,6 @@
 [package]
 name = "x-imu3-self-test"
-version = "1.1.0"
+version = "1.2.0"
 authors = ["x-io Technologies Limited <info@x-io.co.uk>"]
 edition = "2018"
 
