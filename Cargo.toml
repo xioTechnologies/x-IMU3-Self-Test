@@ -7,4 +7,4 @@ edition = "2018"
 [dependencies]
 colour = "2.1.0"
 serde_json = "1.0.127"
-ximu3 = "1.5.0"
+ximu3 = "1.5.1"

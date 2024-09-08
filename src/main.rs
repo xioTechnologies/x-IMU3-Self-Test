@@ -48,6 +48,8 @@ impl Device {
 
         let port_name = self.connection.get_info().to_string().replace("USB ", "");
 
+        self.connection.close();
+
         while PortScanner::get_port_names().contains(&port_name) {
             std::thread::sleep(std::time::Duration::from_millis(1000));
         }
