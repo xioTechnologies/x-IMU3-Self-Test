@@ -5,7 +5,6 @@ use serde_json::Value;
 use std::io::{self};
 use std::ops::Drop;
 use ximu3::connection::*;
-use ximu3::connection_type::*;
 use ximu3::port_scanner::*;
 
 pub struct Device {
@@ -17,7 +16,7 @@ impl Device {
         blue_ln!("Please connect USB");
 
         loop {
-            for device in PortScanner::scan_filter(ConnectionType::Usb) {
+            for device in PortScanner::scan_filter(PortType::Usb) {
                 if matches!(device.device_name.as_str(), "x-IMU3 BON" | "x-IMU3 Thermometer") {
                     continue;
                 }
