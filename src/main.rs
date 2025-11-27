@@ -26,7 +26,9 @@ impl Device {
                 if connection.open().is_ok() {
                     println!("Connected to {}", device);
 
-                    return Device { connection };
+                    return Device {
+                        connection,
+                    };
                 }
             }
         }
